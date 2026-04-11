@@ -17,10 +17,14 @@ local TS_LANGUAGES = {
 	"html",
 	"css",
 	"c",
+	"perl",
 	"cpp",
 	"rust",
+	"ruby",
+	"go",
 	"typescript",
 	"json",
+	"java",
 	"toml",
 	"markdown",
 	"python",
@@ -32,10 +36,15 @@ local LSP_SERVERS = {
 	"cssls",
 	"jsonls",
 	"html",
+	"jdtls",
+	"laravel_ls",
+	"ruby_lsp",
 	"intelephense",
 	"rust_analyzer",
 	"yamlls",
+	"perlnavigator",
 	"lua_ls",
+	"gopls",
 	"ts_ls",
 	"cmake",
 	"clangd",
@@ -58,9 +67,10 @@ vim.opt.writebackup = false
 vim.opt.swapfile = false
 vim.opt.cursorline = true
 vim.opt.termguicolors = true
+vim.opt.signcolumn = "yes"
 
-vim.cmd("set tabstop=4")
-vim.cmd("set softtabstop=4")
+vim.cmd("set tabstop=2")
+vim.cmd("set softtabstop=2")
 vim.cmd("set shiftwidth=2")
 
 vim.diagnostic.config({
@@ -79,12 +89,23 @@ vim.diagnostic.config({
 -----------------------------------------------
 --- LSP Config
 -----------------------------------------------
+vim.lsp.config("lua_ls", {
+	settings = {
+		Lua = {
+			diagnostics = { globals = { "vim" } },
+		},
+	},
+})
 vim.lsp.enable(LSP_SERVERS)
 
 -----------------------------------------------
 --- PLUGINS INSTALL
 -----------------------------------------------
 vim.pack.add({
+	"https://github.com/folke/flash.nvim",
+	"https://github.com/hakonharnes/img-clip.nvim",
+	"https://github.com/saghen/blink.indent",
+	"https://github.com/lewis6991/gitsigns.nvim",
 	"https://github.com/nvim-lualine/lualine.nvim",
 	"https://github.com/romgrk/barbar.nvim",
 	"https://github.com/rafamadriz/friendly-snippets",
@@ -114,7 +135,10 @@ vim.pack.add({
 vim.cmd([[colorscheme gruvbox]])
 local auto_pairs = require("ultimate-autopair").setup()
 local blink = require("blink.cmp")
+local gitsigns = require("gitsigns")
+local telescope = require("telescope")
 local lualine = require("lualine")
+local flash = require("flash")
 local mason = require("mason")
 local mason_lsp = require("mason-lspconfig")
 local conform = require("conform")
@@ -130,13 +154,28 @@ treesitter.install(TS_LANGUAGES)
 mason.setup()
 lualine.setup()
 mason_lsp.setup()
+telescope.setup({
+	defaults = {
+		file_ignore_patterns = {
+			"node_modules/",
+			"build/",
+			"target/",
+			"vendor/",
+			"%.git/",
+			"out/",
+		},
+	},
+})
 conform.setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
+		ruby = { "rubyfmt" },
 		rust = { "rustfmt" },
 		php = { "pretty-php" },
+		java = { "google-java-format" },
 		javascript = { "prettierd" },
 		css = { "prettierd" },
+		go = { "gofmt" },
 		c = { "clang-format" },
 		cpp = { "clang-format" },
 		html = { "prettierd" },
@@ -175,6 +214,29 @@ toggleterm.setup({
 	},
 })
 barbar.setup()
+
+flash.setup({})
+
+gitsigns.setup({
+	signs = {
+		add = { text = "▎" },
+		change = { text = "▎" },
+		untracked = { text = "▎" },
+		delete = { text = "▎" },
+		topdelete = { text = "▎" },
+		changedelete = { text = "~" },
+	},
+	signs_staged = {
+		add = { text = "┃" },
+		change = { text = "┃" },
+		delete = { text = "┃" },
+		topdelete = { text = "┃" },
+		changedelete = { text = "~" },
+	},
+	preview_config = {
+		border = "none",
+	},
+})
 
 -----------------------------------------------
 --- KEYMAPS
@@ -225,6 +287,7 @@ vim.keymap.set("t", K.C("l"), K.cmd("wincmd l"))
 
 vim.keymap.set("n", K.L("ff"), K.cmd("Telescope find_files"))
 vim.keymap.set("n", K.C("Space"), K.cmd("Telescope find_files"))
+vim.keymap.set("n", K.L("fg"), K.cmd("Telescope live_grep"))
 vim.keymap.set("n", K.C("p"), K.cmd("Telescope find_files"))
 
 vim.keymap.set("n", K.A("k"), K.cmd("MoveLine(-1)"))
