@@ -22,8 +22,11 @@ local TS_LANGUAGES = {
 	"rust",
 	"ruby",
 	"go",
+	"gosum",
+	"gomod",
 	"typescript",
 	"json",
+	"latex",
 	"java",
 	"toml",
 	"markdown",
@@ -37,7 +40,8 @@ local LSP_SERVERS = {
 	"jsonls",
 	"html",
 	"jdtls",
-	"laravel_ls",
+	"texlab",
+	-- "laravel_ls",
 	"ruby_lsp",
 	"intelephense",
 	"rust_analyzer",
@@ -68,6 +72,7 @@ vim.opt.swapfile = false
 vim.opt.cursorline = true
 vim.opt.termguicolors = true
 vim.opt.signcolumn = "yes"
+vim.opt.clipboard = "unnamedplus"
 
 vim.cmd("set tabstop=2")
 vim.cmd("set softtabstop=2")
@@ -102,6 +107,9 @@ vim.lsp.enable(LSP_SERVERS)
 --- PLUGINS INSTALL
 -----------------------------------------------
 vim.pack.add({
+	"https://github.com/nvim-telescope/telescope-ui-select.nvim",
+	"https://github.com/windwp/nvim-ts-autotag",
+	"https://github.com/lervag/vimtex",
 	"https://github.com/folke/flash.nvim",
 	"https://github.com/hakonharnes/img-clip.nvim",
 	"https://github.com/saghen/blink.indent",
@@ -133,7 +141,8 @@ vim.pack.add({
 --- PLUGINS CONFIG
 -----------------------------------------------
 vim.cmd([[colorscheme gruvbox]])
-local auto_pairs = require("ultimate-autopair").setup()
+local auto_pairs = require("ultimate-autopair")
+local auto_tags = require("nvim-ts-autotag")
 local blink = require("blink.cmp")
 local gitsigns = require("gitsigns")
 local telescope = require("telescope")
@@ -149,8 +158,14 @@ local barbar = require("barbar")
 local neotree = require("neo-tree")
 
 local Terminal = require("toggleterm.terminal").Terminal
+
+treesitter.setup({
+	auto_install = true,
+})
 treesitter.install(TS_LANGUAGES)
 
+auto_pairs.setup()
+auto_tags.setup()
 mason.setup()
 lualine.setup()
 mason_lsp.setup()
@@ -166,14 +181,21 @@ telescope.setup({
 		},
 	},
 })
+telescope.load_extension("ui-select")
 conform.setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
 		ruby = { "rubyfmt" },
+		latex = { "tex-fmt" },
+		tex = { "tex-fmt" },
 		rust = { "rustfmt" },
 		php = { "pretty-php" },
 		java = { "google-java-format" },
 		javascript = { "prettierd" },
+		typescript = { "prettierd" },
+		ts = { "prettierd" },
+		javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+		typescriptreact = { "prettierd", "prettier", stop_after_first = true },
 		css = { "prettierd" },
 		go = { "gofmt" },
 		c = { "clang-format" },
@@ -306,6 +328,10 @@ vim.keymap.set("n", K.C("t"), K.cmd("ToggleTerm"))
 vim.keymap.set("n", K.L("tl"), function()
 	Terminal:new({ cmd = "lazygit" }):open()
 end)
+
+-- Lsp keymap
+vim.keymap.set({ "v", "n" }, K.A("CR"), vim.lsp.buf.code_action, {})
+vim.keymap.set("n", K.L("r"), vim.lsp.buf.rename, { desc = "Renommer la variable" })
 
 -- barbar config
 local map = vim.api.nvim_set_keymap
