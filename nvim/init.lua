@@ -1,3 +1,4 @@
+---
 -----------------------------------------------
 --- SHARED VARIABLES
 -----------------------------------------------
@@ -10,7 +11,6 @@ local ICONS = {
 	branch = "",
 	braces = "󰅩",
 }
-
 local TS_LANGUAGES = {
 	"lua",
 	"rust",
@@ -107,6 +107,7 @@ vim.lsp.enable(LSP_SERVERS)
 --- PLUGINS INSTALL
 -----------------------------------------------
 vim.pack.add({
+	{ src = "https://github.com/rose-pine/neovim", name = "rose-pine" },
 	"https://github.com/nvim-telescope/telescope-ui-select.nvim",
 	"https://github.com/windwp/nvim-ts-autotag",
 	"https://github.com/lervag/vimtex",
@@ -126,7 +127,7 @@ vim.pack.add({
 	"https://github.com/christoomey/vim-tmux-navigator",
 	"https://github.com/nvim-treesitter/nvim-treesitter",
 	"https://github.com/neovim/nvim-lspconfig",
-	{ src = "https://github.com/saghen/blink.cmp", version = "v1.*" },
+	{ src = "https://github.com/saghen/blink.cmp", version = "v1" },
 	{ src = "https://github.com/altermo/ultimate-autopair.nvim", version = "v0.6" },
 	"https://github.com/kylechui/nvim-surround",
 	"https://github.com/nvim-lua/plenary.nvim",
@@ -140,7 +141,8 @@ vim.pack.add({
 -----------------------------------------------
 --- PLUGINS CONFIG
 -----------------------------------------------
-vim.cmd([[colorscheme gruvbox]])
+-- vim.cmd([[colorscheme gruvbox]])
+vim.cmd("colorscheme rose-pine")
 local auto_pairs = require("ultimate-autopair")
 local auto_tags = require("nvim-ts-autotag")
 local blink = require("blink.cmp")
@@ -156,6 +158,7 @@ local toggleterm = require("toggleterm")
 local move = require("move")
 local barbar = require("barbar")
 local neotree = require("neo-tree")
+require("rose-pine").setup()
 
 local Terminal = require("toggleterm.terminal").Terminal
 
@@ -201,6 +204,7 @@ conform.setup({
 		c = { "clang-format" },
 		cpp = { "clang-format" },
 		html = { "prettierd" },
+		python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
 		markdown = { "prettierd" },
 		yaml = { "prettierd" },
 		json = { "prettierd" },
